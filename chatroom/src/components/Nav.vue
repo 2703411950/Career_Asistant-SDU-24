@@ -14,7 +14,7 @@
       </ul>
     </div>
     <div class="own-pic">
-        <HeadPortrait :imgUrl="imgUrl"></HeadPortrait>
+      <HeadPortrait :imgUrl="imgUrl"></HeadPortrait>
     </div>
   </div>
 </template>
@@ -36,22 +36,35 @@ export default {
         "icon-shezhi",
       ],
       current: 0,
-      imgUrl: require('@/assets/img/head_portrait.jpg')
+      imgUrl: require("@/assets/img/head_portrait.jpg"),
     };
   },
   methods: {
     changeMenu(index) {
       switch (index) {
         case 0:
-          this.$router.push({
-            name: "ChatHome",
-          }, () => {});
+          this.$router.push(
+            {
+              name: "ChatHome",
+            },
+            () => {}
+          );
           break;
         case 1:
-          this.$message("该功能还没有开发哦，敬请期待一下吧~🥳");
+          this.$router.push(
+            {
+              name: "Experience",
+            },
+            () => {}
+          );
           break;
         case 2:
-          this.$message("该功能还没有开发哦，敬请期待一下吧~🥳");
+          this.$router.push(
+            {
+              name: "Company",
+            },
+            () => {}
+          );
           break;
         case 3:
           this.$message("该功能还没有开发哦，敬请期待一下吧~🥳");
