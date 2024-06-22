@@ -104,8 +104,12 @@
         </div>
       </div>
       <div class="chatInputs">
+        <!--        <div class="emoji boxinput" @click="clickEmoji">-->
+        <!--          <img src="@/assets/img/emoji/smiling-face.png" alt=""/>-->
+        <!--        </div>-->
 
         <!--        语音-->
+        <!--        <div class="emoji-content">-->
         <div v-if="isRecording" style="display: flex">
           <div class="send boxinput" style="margin-right: 10px" @click="stopRecording">
             <img src="@/assets/img/emoji/no.png" alt=""/>
@@ -122,13 +126,21 @@
         <div class="send boxinput" @click="sendText">
           <img src="@/assets/img/emoji/rocket.png" alt=""/>
         </div>
+        <!--          <Emoji-->
+        <!--              v-show="showEmoji"-->
+        <!--              @sendEmoji="sendEmoji"-->
+        <!--              @closeEmoji="clickEmoji"-->
+        <!--          ></Emoji>-->
+        <!--        </div>-->
+
       </div>
+
     </div>
   </div>
 </template>
 
 <script>
-import {animation} from "@/utils/util";
+import {animation} from "@/util/util";
 import {getChatMsg} from "@/api/getData";
 
 //必须引入的核心
@@ -181,9 +193,26 @@ export default {
   },
   mounted() {
     this.recOpen()
-    this.getFriendChatMsg();
+    this.reply("你好，我是面试官小陈")
   },
   methods: {
+    //回复
+    reply(text){
+      this.chatList.push({
+        headImg: require("@/assets/img/img_2.png"),
+        name: "面试官",
+        time: this.getNowTime(),
+        msg: text,
+        chatType: 0, //信息类型，0文字，1图片
+        uid: "1002", //uid
+      },);
+      this.scrollBottom();
+      // this.speakText(msg)
+    },
+    speakText(test) {
+      const utterance = new SpeechSynthesisUtterance(test);
+      window.speechSynthesis.speak(utterance);
+    },
     //打开录音权限
     recOpen() {
       // 创建录音对象
@@ -262,15 +291,8 @@ export default {
               console.log(res)
               if (res.code == 200) {
                 console.log("返回文字内容：", res.result);
-                this.chatList.push({
-                  headImg: require("@/assets/img/head_portrait1.jpg"),
-                  name: "大毛",
-                  time: this.getNowTime(),
-                  msg: res.result,
-                  chatType: 0, //信息类型，0文字，1图片
-                  uid: "1002", //uid
-                },);
-                this.scrollBottom();
+                this.reply(res.result)
+                this.speakText(res.result)
               }
             })
             .catch((err) => {
@@ -302,21 +324,21 @@ export default {
       clearInterval(this.timerId);
       this.timerId = null;
     },
-    //获取聊天记录
-    getFriendChatMsg() {
-      let params = {
-        frinedId: this.frinedInfo.id,
-      };
-      getChatMsg(params).then((res) => {
-        this.chatList = res;
-        this.chatList.forEach((item) => {
-          if (item.chatType == 2 && item.extend.imgType == 2) {
-            this.srcImgList.push(item.msg);
-          }
-        });
-        this.scrollBottom();
-      });
-    },
+    // //获取聊天记录
+    // getFriendChatMsg() {
+    //   let params = {
+    //     frinedId: this.frinedInfo.id,
+    //   };
+    //   getChatMsg(params).then((res) => {
+    //     this.chatList = res;
+    //     this.chatList.forEach((item) => {
+    //       if (item.chatType == 2 && item.extend.imgType == 2) {
+    //         this.srcImgList.push(item.msg);
+    //       }
+    //     });
+    //     this.scrollBottom();
+    //   });
+    // },
     //发送信息
     sendMsg(msgList) {
       this.chatList.push(msgList);
@@ -348,8 +370,8 @@ export default {
     sendText() {
       if (this.inputMsg) {
         let chatMsg = {
-          headImg: require("@/assets/img/head_portrait.jpg"),
-          name: "大毛是小白",
+          headImg: require("@/assets/img/student.png"),
+          name: "小白",
           time: this.getNowTime(),
           msg: this.inputMsg,
           chatType: 0, //信息类型，0文字，1图片
@@ -369,8 +391,8 @@ export default {
     sendAudio(blob, duration) {
       // 构造聊天消息对象
       let chatMsg = {
-        headImg: require("@/assets/img/head_portrait.jpg"),
-        name: "大毛是小白", // 发送者名称
+        headImg: require("@/assets/img/student.png"),
+        name: "小白", // 发送者名称
         time: this.getNowTime(), // 发送时间，可以自定义时间格式化函数 formatTime()
         msg: "", // 由于是语音消息，msg 可以为空字符串或者特定标识
         chatType: 3, // 信息类型，0文字，1语音
