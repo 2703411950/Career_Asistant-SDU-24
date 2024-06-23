@@ -1,5 +1,6 @@
 <template>
-  <div class="chatHome">
+  <div v-loading="isLoading" element-loading-text="加载中" element-loading-background="rgba(180, 180, 180, 0.8)"
+       class="chatHome">
     <div class="chatLeft">
       <div class="title">
         <h1>职跃助手</h1>
@@ -46,13 +47,12 @@
           <div class="flex-container">
             <span class="settings-text">上传你的简历</span>
             <div class="my-selector">
-              <input type="file" style="color: white" @change="onFileChange" />
+              <input type="file" style="color: white" @change="onFileChange"/>
             </div>
           </div>
         </el-form-item>
       </el-form>
       <el-button type="primary" style="margin-left: 90px; margin-top: 40px" @click="onSubmit">开始面试</el-button>
-
 
 
     </div>
@@ -62,12 +62,10 @@
         <ChatWindow
             :frinedInfo="chatWindowInfo"
             :question="question"
-             @personCardSort="personCardSort"
+            :startInterview="startInterview"
+            @personCardSort="personCardSort"
         ></ChatWindow>
       </div>
-      <!--      <div class="showIcon">-->
-      <!--        <span class="iconfont icon-snapchat"></span>-->
-      <!--      </div>-->
     </div>
   </div>
 </template>
@@ -78,6 +76,7 @@ import ChatWindow from "./chatwindow.vue";
 
 import {getFriend} from "@/api/getData";
 import request from "@/utils/request";
+
 export default {
   name: "App",
   components: {
@@ -86,9 +85,11 @@ export default {
   },
   data() {
     return {
-      question:[],
+      question: [],
       pcCurrent: "",
       personList: [],
+      startInterview: false,
+      isLoading: false,
       chatWindowInfo: {},
       companyOptions: [
         {
@@ -127,7 +128,7 @@ export default {
         company: '',
         interview: '',
       },
-      file:null
+      file: null
     };
   },
   mounted() {
@@ -157,7 +158,7 @@ export default {
         console.log(id);
         let nowPersonInfo;
         for (let i = 0; i < this.personList.length; i++) {
-          if (this.personList[i].id == id) {
+          if (this.personList[i].id === id) {
             nowPersonInfo = this.personList[i];
             this.personList.splice(i, 1);
             break;
@@ -171,16 +172,24 @@ export default {
       console.log(this.file)
     },
     onSubmit() {
-      const formData = new FormData();
+      let formData = new FormData();
       // 添加文本字段
       for (let key in this.form) {
+        if (this.form[key] === '') {
+          alert("请填写完整信息");
+          return;
+        }
         formData.append(key, this.form[key]);
       }
       // 添加文件
       console.log(this.file)
       if (this.file) {
         formData.append('file', this.file);
+      } else {
+        alert("请上传简历文件！");
+        return;
       }
+      this.isLoading = true;
       // 使用axios或fetch发送POST请求
       // 假设你的Flask后端API地址是 '/upload'
       // delete formData.headers['Content-Type'];
@@ -189,18 +198,19 @@ export default {
           // 注意：当使用 FormData 时，不需要手动设置 Content-Type
           // axios 会自动处理
         },
-      })
-          .then(response => {
-            if (response.code == 200){
-              this.$message("上传成功~🥳");
-              console.log(response.result)
-              this.question = response.result
-            }
-          })
-          .catch(error => {
-            console.error(error);
-            // 处理错误
-          });
+      }).then(response => {
+        if (response.code === 200) {
+          this.$message("上传成功~🥳");
+          console.log(response.result)
+          this.question = response.result
+          this.startInterview = true
+        }
+        this.isLoading = false;
+      }).catch(error => {
+        console.error(error);
+        this.isLoading = false;
+        // 处理错误
+      });
     },
   },
 };

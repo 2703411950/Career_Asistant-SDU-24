@@ -30,7 +30,7 @@ axios.interceptors.response.use(function (response) {
 
 const base = {
   axios: axios,
-  baseUrl: 'http://127.0.0.1:8085'
+  baseUrl: 'http://127.0.0.1:5000'
 }
 
 export default base

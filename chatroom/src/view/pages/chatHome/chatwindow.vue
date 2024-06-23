@@ -104,13 +104,8 @@
           </div>
         </div>
       </div>
-      <div class="chatInputs">
-        <!--        <div class="emoji boxinput" @click="clickEmoji">-->
-        <!--          <img src="@/assets/img/emoji/smiling-face.png" alt=""/>-->
-        <!--        </div>-->
-
+      <div class="chatInputs" v-if="startInterview">
         <!--        语音-->
-        <!--        <div class="emoji-content">-->
         <div v-if="isRecording" style="display: flex">
           <div class="send boxinput" style="margin-right: 10px" @click="stopRecording">
             <img src="@/assets/img/emoji/no.png" alt=""/>
@@ -127,15 +122,10 @@
         <div class="send boxinput" @click="sendText">
           <img src="@/assets/img/emoji/rocket.png" alt=""/>
         </div>
-        <!--          <Emoji-->
-        <!--              v-show="showEmoji"-->
-        <!--              @sendEmoji="sendEmoji"-->
-        <!--              @closeEmoji="clickEmoji"-->
-        <!--          ></Emoji>-->
-        <!--        </div>-->
-
       </div>
-
+      <div class="centered-text" v-else>
+        <span class="text"> 请先输入个人信息，提交简历，再开始面试 </span>
+      </div>
     </div>
   </div>
 </template>
@@ -169,6 +159,7 @@ export default {
   },
   props: {
     frinedInfo: Object,
+    startInterview: Object,
     question: {
       type: Array, // 声明 question 是一个数组
       default: () => [] // 提供一个默认的空数组，以防没有传递任何值
@@ -184,7 +175,7 @@ export default {
   },
   data() {
     return {
-      count:0,
+      count: 0,
       isRecording: false,
       rec: null,
       recBlob: null,
@@ -195,6 +186,7 @@ export default {
       showEmoji: false,
       friendInfo: {},
       srcImgList: [],
+      memory: ""
     };
   },
   mounted() {
@@ -203,7 +195,7 @@ export default {
   },
   methods: {
     //回复
-    reply(text){
+    reply(text) {
       this.chatList.push({
         headImg: require("@/assets/img/img_2.png"),
         name: "面试官",
@@ -278,6 +270,8 @@ export default {
         this.sendAudio(blob, duration);
         // 将录音数据添加到文件列表中
         this.upload(blob); // 把blob文件上传到服务器
+        // 面试问问题
+        this.askQuestion()
         this.isRecording = false
       }, (err) => {
         console.error("结束录音出错：" + err);
@@ -285,8 +279,30 @@ export default {
         this.rec = null;
       });
     },
+    askQuestion() {
+      if (this.count == 5) {
+        this.reply("此次面试结束，请等待生成回馈总结")
+        console.log(this.memory)
+        request.post("/conclusion", {
+          memory: this.memory
+        }).then(res => {
+          this.reply(res.result)
+        })
+        this.count = 0
+        this.memory = ""
+
+      } else {
+        // console.log("返回文字内容：", this.question);
+        console.log(this.count)
+        let cou = this.count
+        this.reply(this.question[cou])
+        this.speakText(this.question[this.count])
+        this.memory += this.question[cou]
+        this.count += 1
+      }
+    },
     upload(blob) {
-      console.log("视频上传服务器：");
+      console.log("语音上传服务器：");
       this.blobToDataURI(blob, (result) => {
         request.post('/upload', {
           file: result.split(",")[1],
@@ -296,20 +312,8 @@ export default {
             .then((res) => {
               console.log(res)
               if (res.code == 200) {
-                if(this.count==5){
-                  this.count = 0
-                  this.reply("此次面试结束，再来一次")
-
-                }else{
-                  // console.log("返回文字内容：", this.question);
-                  console.log(this.count)
-                  let cou = this.count
-                  this.reply(this.question[cou])
-                  this.speakText(this.question[this.count])
-                  this.count +=1
-                }
-
-
+                this.memory += "回答：" + res.result + "\n"
+                console.log(res.result)
               }
             })
             .catch((err) => {
@@ -522,6 +526,21 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.centered-text {
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  width: 80%;
+  height: 60px;
+  background-color: rgb(36, 116, 212); /* 为了更好的展示效果，假设背景色为蓝色 */
+}
+
+.text {
+  color: white;
+}
+
 .chat-window {
   width: 100%;
   height: 100%;

@@ -1,7 +1,7 @@
 <template>
   <div>
     <head>
-      <meta name="referrer" content="no-referrer" />
+      <meta name="referrer" content="no-referrer"/>
     </head>
     <div class="company">
       <div class="left">
@@ -11,13 +11,19 @@
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item command="公司一览"
-              ><div class="menu-label">公司一览</div></el-dropdown-item
+              >
+                <div class="menu-label">公司一览</div>
+              </el-dropdown-item
               >
               <el-dropdown-item command="面试经验"
-              ><div class="menu-label">面试经验</div></el-dropdown-item
+              >
+                <div class="menu-label">面试经验</div>
+              </el-dropdown-item
               >
               <el-dropdown-item command="数据统计"
-              ><div class="menu-label">数据统计</div></el-dropdown-item
+              >
+                <div class="menu-label">数据统计</div>
+              </el-dropdown-item
               >
             </el-dropdown-menu>
           </template>
@@ -63,7 +69,7 @@
           </div>
           <div class="jobInformations">
             <div class="arrow-icon" @click="loadBefor">
-              <img :src="require(`@/assets/img/icon/向左.png`)" alt="" />
+              <img :src="require(`@/assets/img/icon/向左.png`)" alt=""/>
             </div>
             <JobInformationCard
                 v-if="currentMenu === '公司一览'"
@@ -78,7 +84,7 @@
                 :exp="currentDataVisualization"
             ></ExpeienceBlog>
             <div class="arrow-icon" @click="loadNext">
-              <img :src="require(`@/assets/img/icon/向右.png`)" alt="" />
+              <img :src="require(`@/assets/img/icon/向右.png`)" alt=""/>
             </div>
           </div>
         </div>
@@ -91,9 +97,10 @@
 import ExpeienceBlog from "../../components/ExperienceBlog.vue";
 import JobInformationCard from "../../components/JobInformationCard.vue";
 import {getCompanyJobInformationWithOfset, getTechnicalQuestion} from "@/api/getDataOut";
-import { getExperienceWithOfset } from "@/api/getDataOut";
+import {getExperienceWithOfset} from "@/api/getDataOut";
 import {showTechnicalQuestion} from "@/api/getDataOut";
-import { ref } from "vue";
+import {ref} from "vue";
+
 export default {
   components: {
     ExpeienceBlog,
@@ -120,7 +127,7 @@ export default {
     // this.getExperience();
   },
   methods: {
-    showTechnical(){
+    showTechnical() {
       let params = {
         company: this.currentCompany,
       };
@@ -129,37 +136,11 @@ export default {
         console.log(res)
       });
     },
-    // getExperience() {
-    //   let params = {
-    //     offset: this.offset,
-    //     job: this.currentJob,
-    //     company: this.currentCompany,
-    //   };
-    // let ret = 0;
-    // console.log(params)
-    //   getExperienceWithOfset(params).then((res) => {
-    //   console.log(res);
-    //   if (res.title !=="无") {
-    //     this.currentExperienceBlog = {
-    //       title: res.title.toString(),
-    //       content: res.content.toString()
-    //     };
-    //     // ret = true;
-    //     // this.$message("获得面经");
-    //     return 1
-    //   } else {
-    //     this.$message("暂时还没有该部分的信息哦");
-    //     return 0
-    //   }
-    // }).then((res) => {ret = res});
-    // return ret;
-    // },
     async getExperience() {
       let t;
       if (this.checkList.length === 0) {
-        t = ["后端","前端"]
-      }
-      else{
+        t = ["后端", "前端"]
+      } else {
         t = this.checkList
       }
       let params = {
@@ -191,9 +172,8 @@ export default {
     async getCompanyJobInform() {
       let t;
       if (this.checkList.length === 0) {
-        t = ["算法","数据","开发","网络"]
-      }
-      else{
+        t = ["算法", "数据", "开发", "网络"]
+      } else {
         t = this.checkList
       }
       let params = {
@@ -235,7 +215,7 @@ export default {
       // this.$message(`你选择了${this.currentMenu}`);
       switch (command) {
         case "公司一览":
-          this.currentJob= "算法"
+          this.currentJob = "算法"
           this.getCompanyJobInform();
           break;
         case "面试经验":
@@ -254,7 +234,7 @@ export default {
       // this.$message(`你选择了${this.currentCompany}`);
       switch (this.currentMenu) {
         case "公司一览":
-          this.currentJob= "算法"
+          this.currentJob = "算法"
           this.getCompanyJobInform();
           break;
         case "面试经验":
@@ -272,7 +252,7 @@ export default {
       // this.$message(`你选择了${this.currentCompany}`);
       switch (this.currentMenu) {
         case "公司一览":
-          this.currentJob= "算法"
+          this.currentJob = "算法"
           this.getCompanyJobInform();
           break;
         case "面试经验":
@@ -293,7 +273,7 @@ export default {
           ret = this.getCompanyJobInform();
         }
         if (this.currentMenu === "面试经验") {
-         ret = this.getExperience();
+          ret = this.getExperience();
         }
         if (!ret) {
           this.offset = this.offset + 1;
@@ -306,10 +286,10 @@ export default {
       this.offset = this.offset + 1;
       let ret = true
       if (this.currentMenu === "公司一览") {
-       ret = this.getCompanyJobInform();
+        ret = this.getCompanyJobInform();
       }
       if (this.currentMenu === "面试经验") {
-       ret = this.getExperience();
+        ret = this.getExperience();
       }
       if (!ret) {
         this.offset = this.offset - 1;
@@ -322,27 +302,34 @@ export default {
 <style lang="scss" scoped>
 .company {
   display: flex;
+
   .left {
     width: 200px;
+
     .l-head {
       display: flex;
+
       .title {
         padding-left: 10px;
         color: #fff;
       }
     }
+
     .selectJob {
       margin-top: 65px;
       height: 500px;
+
       .selectJobList {
         display: flex;
         flex-direction: column;
       }
     }
   }
+
   .right {
     flex: 1;
     padding-right: 30px;
+
     .company-list {
       margin-left: 100px;
       margin-right: 100px;
@@ -353,38 +340,46 @@ export default {
       justify-content: space-between;
       align-items: center;
     }
+
     .company-icon img {
       height: 40px;
     }
+
     .jobInformations {
       margin-top: 20px;
       display: flex;
       flex-direction: row;
+
       .arrow-icon {
         display: flex;
         align-items: center;
         padding: 20px;
       }
+
       .arrow-icon img {
         height: 40px;
       }
     }
   }
 }
+
 .el-checkbox {
   color: #fff;
   margin: 20px;
 }
+
 .el-dropdown-link {
   cursor: pointer;
   color: #fff;
   display: flex;
   align-items: center;
 }
+
 .el-dropdown-menu {
   background-color: rgb(50, 54, 68);
   border-color: transparent;
 }
+
 .menu-label {
   color: #8e9083;
 }
