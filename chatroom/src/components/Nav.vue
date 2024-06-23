@@ -67,7 +67,12 @@ export default {
           );
           break;
         case 3:
-          this.$message("该功能还没有开发哦，敬请期待一下吧~🥳");
+          this.$router.push(
+            {
+              name: "InterviewExperience",
+            },
+            () => {}
+          );
           break;
         case 4:
           this.$message("该功能还没有开发哦，敬请期待一下吧~🥳");

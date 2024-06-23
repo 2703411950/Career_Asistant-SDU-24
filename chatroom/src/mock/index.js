@@ -18,7 +18,7 @@ Mock.mock(/friend\/chatMsg/, 'post', (config) => { //三个参数。第一个：
 Mock.mock(/experience/, 'post', (config) => {
     let params = JSON.parse(config.body);
     console.log(params)
-    ofset = params.ofset;
+    offset = params.offset;
     job = params.job;
     company = params.company;
     ret = null;

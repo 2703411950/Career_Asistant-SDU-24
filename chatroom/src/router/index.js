@@ -7,6 +7,7 @@ import Setting from '../view/pages/setting.vue'
 import ChatWindow from '../view/pages/chatHome/chatwindow.vue'
 import Experience from '../view/pages/experience.vue'
 import Company from '../view/pages/company.vue'
+import InterviewExperience from '@/view/pages/interviewExperience.vue'
  
 export default new VueRouter({
     routes: [
@@ -44,5 +45,11 @@ export default new VueRouter({
             name: "Company",
             component: Company
         },
+        {
+            path: "/InterviewExperience",
+            name: "InterviewExperience",
+            component: InterviewExperience
+        }
+
     ]
 })
