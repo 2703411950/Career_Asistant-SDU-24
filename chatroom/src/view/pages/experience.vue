@@ -144,8 +144,9 @@ export default {
       .experienceInformation {
         border-radius: 20px;
         width: 100%;
+        margin-top: 20px;
         .experience-list {
-          height: 75vh;
+          height: 70vh;
           &::-webkit-scrollbar {
             width: 0; /* Safari,Chrome 隐藏滚动条 */
             height: 0; /* Safari,Chrome 隐藏滚动条 */

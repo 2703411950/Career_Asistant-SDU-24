@@ -30,8 +30,17 @@ export const getExperienceWithOfset = params => {
   }).then(res => res.data)
 }
 
-// 获取公司的岗位信息
+// 获取公司的岗位
 export const getCompanyJobList = params => {
+  return axios({
+    method: 'post',
+    baseURL: `${baseUrl}/company/jobs`,
+    data: params
+  }).then(res => res.data)
+}
+
+// 获取公司的岗位信息
+export const getCompanyJobInformationList = params => {
   return axios({
     method: 'post',
     baseURL: `${baseUrl}/company/jobs`,

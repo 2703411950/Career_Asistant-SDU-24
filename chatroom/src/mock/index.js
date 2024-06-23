@@ -70,7 +70,13 @@ Mock.mock(/experience/, 'post', (config) => {
 //获取工作列表
 Mock.mock(/company\/jobs/, 'post', (config) => {
     let params = JSON.parse(config.body);
-    return jobList
+    offset = params.offset;
+    if (offset < jobInformationList.length){
+        return jobInformationList[offset]
+    }
+    else{
+        return null;
+    }
 })
 
 
@@ -304,12 +310,12 @@ let experienceList = Mock.mock(
     ]
 )
 
-let jobItemList = Mock.mock(
+let jobInformationList = Mock.mock(
     [
         {
             job_description: "如果你，期望参与淘天集团产品线终端（Web/Android/iOS/鸿蒙/PC等）功能的开发与实现，与视觉交互设计师一起打造最酷的用户产品；如果你，期望参与终端性能、技术架构等方面的改进与优化，打造最极致的用户体验；如果你，期望参与终端技术解决方案、工具库、框架、平台的研发，持续提升终端研发质量与效能；如果你，期望参与业内最前沿的终端技术研究和人机交互探索，拓展终端能力边界；那还犹豫什么，赶紧加入我们吧！",
-            job_name: "终端开发工程师",
-            job_require: `【必备项】
+            job: "终端开发工程师",
+            requriement: `【必备项】
             1、本科及以上学历，计算机、软件、通信等专业优先；
             2、了解计算机原理、数据结构、设计模式、网络编程、多线程、UI 框架等基本应用开发知识；
             3、熟悉至少一门终端技术相关语言（如 JavaScript、Java/Kotlin、Swift/Objective-C、C/C++ 等）；
