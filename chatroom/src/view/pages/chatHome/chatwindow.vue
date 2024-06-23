@@ -34,6 +34,7 @@
         <!-- accept="application/*" -->
       </div>
     </div>
+
     <div class="botoom">
       <div class="chat-content" ref="chatContent">
         <div class="chat-wrapper" v-for="item in chatList" :key="item.id">
@@ -168,17 +169,22 @@ export default {
   },
   props: {
     frinedInfo: Object,
+    question: {
+      type: Array, // 声明 question 是一个数组
+      default: () => [] // 提供一个默认的空数组，以防没有传递任何值
+    },
     default() {
       return {};
     },
   },
   watch: {
-    frinedInfo() {
-      this.getFriendChatMsg();
-    },
+    // frinedInfo() {
+    //   this.getFriendChatMsg();
+    // },
   },
   data() {
     return {
+      count:0,
       isRecording: false,
       rec: null,
       recBlob: null,
@@ -290,9 +296,20 @@ export default {
             .then((res) => {
               console.log(res)
               if (res.code == 200) {
-                console.log("返回文字内容：", res.result);
-                this.reply(res.result)
-                this.speakText(res.result)
+                if(this.count==5){
+                  this.count = 0
+                  this.reply("此次面试结束，再来一次")
+
+                }else{
+                  // console.log("返回文字内容：", this.question);
+                  console.log(this.count)
+                  let cou = this.count
+                  this.reply(this.question[cou])
+                  this.speakText(this.question[this.count])
+                  this.count +=1
+                }
+
+
               }
             })
             .catch((err) => {

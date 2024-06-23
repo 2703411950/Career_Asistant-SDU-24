@@ -5,66 +5,6 @@
         <h1>职跃助手</h1>
       </div>
 
-      <!--      <div class="user-settings">-->
-      <!--        <div class="settings-unit">-->
-      <!--          <span class="settings-text">选择公司</span>-->
-      <!--          <div class="my-selector">-->
-      <!--            <el-select v-model="companyValue" placeholder="请选择">-->
-      <!--              <el-option-->
-      <!--                  v-for="item in companyOptions"-->
-      <!--                  :key="item.value"-->
-      <!--                  :label="item.label"-->
-      <!--                  :value="item.value">-->
-      <!--              </el-option>-->
-      <!--            </el-select>-->
-      <!--          </div>-->
-      <!--        </div>-->
-      <!--        <div class="settings-unit">-->
-      <!--          <span class="settings-text">选择岗位</span>-->
-      <!--          <div class="my-selector">-->
-      <!--            <el-select v-model="jobValue" placeholder="请选择">-->
-      <!--              <el-option-->
-      <!--                  v-for="item in jobOptions"-->
-      <!--                  :key="item.value"-->
-      <!--                  :label="item.label"-->
-      <!--                  :value="item.value">-->
-      <!--              </el-option>-->
-      <!--            </el-select>-->
-      <!--          </div>-->
-      <!--        </div>-->
-      <!--        <div class="settings-unit">-->
-      <!--          <span class="settings-text">选择面试类型</span>-->
-      <!--          <div class="my-selector">-->
-      <!--            <el-select v-model="interviewValue" placeholder="请选择">-->
-      <!--              <el-option-->
-      <!--                  v-for="item in interviewOptions"-->
-      <!--                  :key="item.value"-->
-      <!--                  :label="item.label"-->
-      <!--                  :value="item.value">-->
-      <!--              </el-option>-->
-      <!--            </el-select>-->
-      <!--          </div>-->
-      <!--        </div>-->
-      <!--        <div class="settings-unit">-->
-      <!--          <span class="settings-text">上传你的简历</span>-->
-      <!--          <div class="my-selector">-->
-      <!--            <el-upload-->
-      <!--                class="upload-demo"-->
-      <!--                action="https://jsonplaceholder.typicode.com/posts/"-->
-      <!--                :on-preview="handlePreview"-->
-      <!--                :on-remove="handleRemove"-->
-      <!--                :before-remove="beforeRemove"-->
-      <!--                multiple-->
-      <!--                :limit="1"-->
-      <!--                :on-exceed="handleExceed"-->
-      <!--                :file-list="fileList">-->
-      <!--              <el-button size="small" type="primary">点击上传</el-button>-->
-      <!--              <div slot="tip" class="el-upload__tip">只能上传pdf文件</div>-->
-      <!--            </el-upload>-->
-      <!--          </div>-->
-      <!--        </div>-->
-      <!--      </div>-->
-
       <el-form class="user-settings" ref="form" :model="form" label-width="80px" label-position="top">
         <el-form-item class="settings-unit">
           <span class="settings-text">选择岗位</span>
@@ -106,25 +46,12 @@
           <div class="flex-container">
             <span class="settings-text">上传你的简历</span>
             <div class="my-selector">
-<!--              <el-upload-->
-<!--                  class="upload-demo"-->
-<!--                  :before-upload="beforeUpload"-->
-<!--                  :before-remove="beforeRemove"-->
-<!--                  multiple-->
-<!--                  :auto-upload="false"-->
-<!--                  :limit="1"-->
-<!--                  :on-exceed="handleExceed"-->
-<!--                  :file-list="form.fileList"-->
-<!--                  @change="handleFileUploadChange"> &lt;!&ndash; 添加 change 事件处理器 &ndash;&gt;-->
-<!--                <el-button size="small" type="primary">点击上传</el-button>-->
-<!--              </el-upload>-->
-
+              <input type="file" style="color: white" @change="onFileChange" />
             </div>
           </div>
         </el-form-item>
       </el-form>
-
-          <el-button type="primary"style="margin-left: 90px;margin-top: 40px" @click="onSubmit">开始面试</el-button>
+      <el-button type="primary" style="margin-left: 90px; margin-top: 40px" @click="onSubmit">开始面试</el-button>
 
 
 
@@ -134,7 +61,8 @@
       <div>
         <ChatWindow
             :frinedInfo="chatWindowInfo"
-            @personCardSort="personCardSort"
+            :question="question"
+             @personCardSort="personCardSort"
         ></ChatWindow>
       </div>
       <!--      <div class="showIcon">-->
@@ -158,6 +86,7 @@ export default {
   },
   data() {
     return {
+      question:[],
       pcCurrent: "",
       personList: [],
       chatWindowInfo: {},
@@ -197,8 +126,8 @@ export default {
         job: '',
         company: '',
         interview: '',
-        fileList: [],
-      }
+      },
+      file:null
     };
   },
   mounted() {
@@ -237,47 +166,42 @@ export default {
         this.personList.unshift(nowPersonInfo);
       }
     },
-    handleFileUploadChange(file, fileList) {
-      // 在这里，你可以根据需要处理文件对象或更新 fileList
-      // 例如，你可以将新文件添加到 form.fileList 中
-      this.form.fileList = fileList; // 直接使用组件提供的 fileList
-      // 或者你可以添加额外的逻辑来检查文件类型等
-    },
-    beforeUpload(file) {
-      this.form.fileList.push(file);
-      return false;
-    },
-
-    handleExceed(files, fileList) {
-      this.$message.warning('当前限制选择 1 个文件');
-    },
-    beforeRemove(file, fileList) {
-      return this.$confirm(`确定移除 ${file.name}？`);
+    onFileChange(e) {
+      this.file = e.target.files[0];
+      console.log(this.file)
     },
     onSubmit() {
-      console.log(this.form.fileList[0])
-      try {
-        const formData = new FormData();
-        formData.append('job', this.form.job);
-        formData.append('company', this.form.company);
-        formData.append('interview', this.form.interview);
-
-        if (this.form.fileList.length > 0) {
-          formData.append('resume', this.form.fileList[0].raw);
-        }
-
-        request.post('/submit', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        });
-
-        console.log('Response:', response.data);
-      } catch (error) {
-        console.error('Error submitting form:', error);
+      const formData = new FormData();
+      // 添加文本字段
+      for (let key in this.form) {
+        formData.append(key, this.form[key]);
       }
-
-    }
+      // 添加文件
+      console.log(this.file)
+      if (this.file) {
+        formData.append('file', this.file);
+      }
+      // 使用axios或fetch发送POST请求
+      // 假设你的Flask后端API地址是 '/upload'
+      // delete formData.headers['Content-Type'];
+      request.post('/upload_file', formData, {
+        headers: {
+          // 注意：当使用 FormData 时，不需要手动设置 Content-Type
+          // axios 会自动处理
+        },
+      })
+          .then(response => {
+            if (response.code == 200){
+              this.$message("上传成功~🥳");
+              console.log(response.result)
+              this.question = response.result
+            }
+          })
+          .catch(error => {
+            console.error(error);
+            // 处理错误
+          });
+    },
   },
 };
 </script>
