@@ -104,7 +104,7 @@
           </div>
         </div>
       </div>
-      <div class="chatInputs" v-if="startInterview">
+      <div class="chatInputs" v-if="display">
         <!--        语音-->
         <div v-if="isRecording" style="display: flex">
           <div class="send boxinput" style="margin-right: 10px" @click="stopRecording">
@@ -123,16 +123,14 @@
           <img src="@/assets/img/emoji/rocket.png" alt=""/>
         </div>
       </div>
-      <div class="centered-text" v-else>
-        <span class="text"> 请先输入个人信息，提交简历，再开始面试 </span>
+      <div class="centered-text" @click="initInterview" v-else>
+        <span class="text">开始面试 </span>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import {animation} from "@/util/util";
-import {getChatMsg} from "@/api/getData";
 
 //必须引入的核心
 import Recorder from 'recorder-core';
@@ -168,15 +166,11 @@ export default {
       return {};
     },
   },
-  watch: {
-    // frinedInfo() {
-    //   this.getFriendChatMsg();
-    // },
-  },
   data() {
     return {
       count: 0,
       isRecording: false,
+      display: false,
       rec: null,
       recBlob: null,
       recordedTime: 0,
@@ -191,12 +185,19 @@ export default {
   },
   mounted() {
     this.recOpen()
-    this.reply("你好，我是面试官小陈")
   },
   methods: {
+    initInterview(){
+      if (this.startInterview === true){
+        this.display = true;
+        this.reply("开始")
+      }else{
+        alert("请先传递数据")
+      }
+    },
     //回复
     reply(text) {
-      this.chatList.push({
+      this.sendMsg({
         headImg: require("@/assets/img/img_2.png"),
         name: "面试官",
         time: this.getNowTime(),
@@ -204,8 +205,6 @@ export default {
         chatType: 0, //信息类型，0文字，1图片
         uid: "1002", //uid
       },);
-      this.scrollBottom();
-      // this.speakText(msg)
     },
     speakText(test) {
       const utterance = new SpeechSynthesisUtterance(test);
@@ -226,10 +225,6 @@ export default {
       // 打开录音，获得权限
       this.rec.open(() => {
         console.log("录音已打开");
-        // if (this.$refs.recwave) {
-        //   // 创建音频可视化图形绘制对象
-        //   this.wave = Recorder.WaveView({ elem: this.$refs.recwave });
-        // }
       }, (msg, isUserNotAllow) => {
         // 用户拒绝了录音权限，或者浏览器不支持录音
         console.log((isUserNotAllow ? "UserNotAllow，" : "") + "无法录音:" + msg);
@@ -263,7 +258,7 @@ export default {
       this.rec.stop((blob, duration) => {
         // blob就是我们要的录音文件对象，可以上传，或者本地播放
         this.recBlob = blob;
-        var localUrl = (window.URL || webkitURL).createObjectURL(blob);
+        let localUrl = (window.URL || webkitURL).createObjectURL(blob);
         console.log("录音成功", blob, localUrl, "时长:" + duration + "ms");
 
         // 发送录音消息
@@ -280,7 +275,7 @@ export default {
       });
     },
     askQuestion() {
-      if (this.count == 5) {
+      if (this.count === 5) {
         this.reply("此次面试结束，请等待生成回馈总结")
         console.log(this.memory)
         request.post("/conclusion", {
@@ -311,7 +306,7 @@ export default {
         })
             .then((res) => {
               console.log(res)
-              if (res.code == 200) {
+              if (res.code === 200) {
                 this.memory += "回答：" + res.result + "\n"
                 console.log(res.result)
               }
@@ -322,7 +317,7 @@ export default {
       });
     },
     blobToDataURI(blob, callback) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.readAsDataURL(blob);
       reader.onload = function (e) {
         callback(e.target.result);
@@ -345,21 +340,6 @@ export default {
       clearInterval(this.timerId);
       this.timerId = null;
     },
-    // //获取聊天记录
-    // getFriendChatMsg() {
-    //   let params = {
-    //     frinedId: this.frinedInfo.id,
-    //   };
-    //   getChatMsg(params).then((res) => {
-    //     this.chatList = res;
-    //     this.chatList.forEach((item) => {
-    //       if (item.chatType == 2 && item.extend.imgType == 2) {
-    //         this.srcImgList.push(item.msg);
-    //       }
-    //     });
-    //     this.scrollBottom();
-    //   });
-    // },
     //发送信息
     sendMsg(msgList) {
       this.chatList.push(msgList);
@@ -372,10 +352,6 @@ export default {
         scrollDom.scrollTop = scrollDom.scrollHeight;
         // animation(scrollDom, scrollDom.scrollHeight - scrollDom.offsetHeight);
       });
-    },
-    //关闭标签框
-    clickEmoji() {
-      this.showEmoji = !this.showEmoji;
     },
     // 获取当前的时间
     getNowTime() {

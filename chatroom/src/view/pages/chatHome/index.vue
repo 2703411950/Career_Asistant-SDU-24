@@ -52,7 +52,7 @@
           </div>
         </el-form-item>
       </el-form>
-      <el-button type="primary" style="margin-left: 90px; margin-top: 40px" @click="onSubmit">开始面试</el-button>
+      <el-button type="primary" style="margin-left: 90px; margin-top: 40px" @click="onSubmit">上传文件</el-button>
 
 
     </div>
@@ -63,6 +63,7 @@
             :frinedInfo="chatWindowInfo"
             :question="question"
             :startInterview="startInterview"
+            :buttenText="buttonText"
             @personCardSort="personCardSort"
         ></ChatWindow>
       </div>
@@ -90,6 +91,7 @@ export default {
       personList: [],
       startInterview: false,
       isLoading: false,
+      buttonText: "请先输入个人信息，提交简历",
       chatWindowInfo: {},
       companyOptions: [
         {
