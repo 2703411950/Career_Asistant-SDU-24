@@ -34,8 +34,7 @@ Mock.mock(/experience/, 'post', (config) => {
                 }
             }
         }
-    }
-    else if (company != "" && job == "") {
+    } else if (company != "" && job == "") {
         console.log(`find for ${company}`)
         for (element of experienceList) {
             console.log(element.company)
@@ -47,10 +46,9 @@ Mock.mock(/experience/, 'post', (config) => {
                 }
             }
         }
-    }
-    else if (company != "" && job != "") {
+    } else if (company != "" && job != "") {
         console.log(`find for ${company} and ${job}`)
-        for (element of experienceList){
+        for (element of experienceList) {
             if (element.company == company && element.job == job) {
                 count = count + 1;
                 if (count == ofset) {
@@ -59,22 +57,20 @@ Mock.mock(/experience/, 'post', (config) => {
                 }
             }
         }
-    }
-    else if (ofset < experienceList.length) {
+    } else if (ofset < experienceList.length) {
         ret = experienceList[ofset]
     }
     return ret;
-    
+
 })
 
 //获取工作列表
 Mock.mock(/company\/jobs/, 'post', (config) => {
     let params = JSON.parse(config.body);
     offset = params.offset;
-    if (offset < jobInformationList.length){
+    if (offset < jobInformationList.length) {
         return jobInformationList[offset]
-    }
-    else{
+    } else {
         return null;
     }
 })

@@ -2,21 +2,13 @@
   <div class="chat-window">
     <div class="top">
       <div class="head-pic">
-        <HeadPortrait :imgUrl="frinedInfo.headImg"></HeadPortrait>
+        <HeadPortrait :imgUrl="require('@/assets/img/img_2.png')"></HeadPortrait>
       </div>
       <div class="info-detail">
         <div class="name">{{ "模拟面试助手" }}</div>
         <div class="detail">{{ "你的专业求职帮手" }}</div>
       </div>
       <div class="other-fun">
-        <span class="iconfont icon-shipin" @click="video"> </span>
-        <span class="iconfont icon-gf-telephone" @click="telephone"></span>
-        <label for="docFile">
-          <span class="iconfont icon-wenjian"></span>
-        </label>
-        <label for="imgFile">
-          <span class="iconfont icon-tupian"></span>
-        </label>
         <input
             type="file"
             name=""
@@ -104,13 +96,8 @@
           </div>
         </div>
       </div>
-      <div class="chatInputs">
-        <!--        <div class="emoji boxinput" @click="clickEmoji">-->
-        <!--          <img src="@/assets/img/emoji/smiling-face.png" alt=""/>-->
-        <!--        </div>-->
-
+      <div class="chatInputs" v-if="display">
         <!--        语音-->
-        <!--        <div class="emoji-content">-->
         <div v-if="isRecording" style="display: flex">
           <div class="send boxinput" style="margin-right: 10px" @click="stopRecording">
             <img src="@/assets/img/emoji/no.png" alt=""/>
@@ -127,22 +114,15 @@
         <div class="send boxinput" @click="sendText">
           <img src="@/assets/img/emoji/rocket.png" alt=""/>
         </div>
-        <!--          <Emoji-->
-        <!--              v-show="showEmoji"-->
-        <!--              @sendEmoji="sendEmoji"-->
-        <!--              @closeEmoji="clickEmoji"-->
-        <!--          ></Emoji>-->
-        <!--        </div>-->
-
       </div>
-
+      <div class="centered-text" @click="initInterview" v-else>
+        <span class="text">开始面试 </span>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import {animation} from "@/util/util";
-import {getChatMsg} from "@/api/getData";
 
 //必须引入的核心
 import Recorder from 'recorder-core';
@@ -169,6 +149,7 @@ export default {
   },
   props: {
     frinedInfo: Object,
+    startInterview: Object,
     question: {
       type: Array, // 声明 question 是一个数组
       default: () => [] // 提供一个默认的空数组，以防没有传递任何值
@@ -177,15 +158,11 @@ export default {
       return {};
     },
   },
-  watch: {
-    // frinedInfo() {
-    //   this.getFriendChatMsg();
-    // },
-  },
   data() {
     return {
-      count:0,
+      count: 0,
       isRecording: false,
+      display: false,
       rec: null,
       recBlob: null,
       recordedTime: 0,
@@ -195,16 +172,27 @@ export default {
       showEmoji: false,
       friendInfo: {},
       srcImgList: [],
+      memory: ""
     };
   },
   mounted() {
     this.recOpen()
-    this.reply("你好，我是面试官小陈")
   },
   methods: {
+    initInterview(){
+      if (this.startInterview === true){
+        this.display = true;
+        this.reply(this.question[0])
+        this.speakText(this.question[this.count])
+        this.memory += this.question[0]
+        this.count += 1
+      }else{
+        alert("请先传递数据")
+      }
+    },
     //回复
-    reply(text){
-      this.chatList.push({
+    reply(text) {
+      this.sendMsg({
         headImg: require("@/assets/img/img_2.png"),
         name: "面试官",
         time: this.getNowTime(),
@@ -212,8 +200,6 @@ export default {
         chatType: 0, //信息类型，0文字，1图片
         uid: "1002", //uid
       },);
-      this.scrollBottom();
-      // this.speakText(msg)
     },
     speakText(test) {
       const utterance = new SpeechSynthesisUtterance(test);
@@ -234,10 +220,6 @@ export default {
       // 打开录音，获得权限
       this.rec.open(() => {
         console.log("录音已打开");
-        // if (this.$refs.recwave) {
-        //   // 创建音频可视化图形绘制对象
-        //   this.wave = Recorder.WaveView({ elem: this.$refs.recwave });
-        // }
       }, (msg, isUserNotAllow) => {
         // 用户拒绝了录音权限，或者浏览器不支持录音
         console.log((isUserNotAllow ? "UserNotAllow，" : "") + "无法录音:" + msg);
@@ -271,13 +253,15 @@ export default {
       this.rec.stop((blob, duration) => {
         // blob就是我们要的录音文件对象，可以上传，或者本地播放
         this.recBlob = blob;
-        var localUrl = (window.URL || webkitURL).createObjectURL(blob);
+        let localUrl = (window.URL || webkitURL).createObjectURL(blob);
         console.log("录音成功", blob, localUrl, "时长:" + duration + "ms");
 
         // 发送录音消息
         this.sendAudio(blob, duration);
         // 将录音数据添加到文件列表中
         this.upload(blob); // 把blob文件上传到服务器
+        // 面试问问题
+        this.askQuestion()
         this.isRecording = false
       }, (err) => {
         console.error("结束录音出错：" + err);
@@ -285,8 +269,31 @@ export default {
         this.rec = null;
       });
     },
+    askQuestion() {
+      if (this.count === 4) {
+        this.reply("此次面试结束，请等待生成回馈总结")
+        console.log(this.memory)
+        request.post("/conclusion", {
+          memory: this.memory
+        }).then(res => {
+          this.reply(res.result)
+        })
+        this.count = 0
+        this.memory = ""
+
+      } else {
+        // console.log("返回文字内容：", this.question);
+        console.log(this.count)
+        let cou = this.count
+        this.reply(this.question[cou])
+        this.speakText(this.question[this.count])
+
+        this.memory += this.question[cou]
+        this.count += 1
+      }
+    },
     upload(blob) {
-      console.log("视频上传服务器：");
+      console.log("语音上传服务器：");
       this.blobToDataURI(blob, (result) => {
         request.post('/upload', {
           file: result.split(",")[1],
@@ -295,21 +302,9 @@ export default {
         })
             .then((res) => {
               console.log(res)
-              if (res.code == 200) {
-                if(this.count==5){
-                  this.count = 0
-                  this.reply("此次面试结束，再来一次")
-
-                }else{
-                  // console.log("返回文字内容：", this.question);
-                  console.log(this.count)
-                  let cou = this.count
-                  this.reply(this.question[cou])
-                  this.speakText(this.question[this.count])
-                  this.count +=1
-                }
-
-
+              if (res.code === 200) {
+                this.memory += "回答：" + res.result + "\n"
+                console.log(res.result)
               }
             })
             .catch((err) => {
@@ -318,7 +313,7 @@ export default {
       });
     },
     blobToDataURI(blob, callback) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.readAsDataURL(blob);
       reader.onload = function (e) {
         callback(e.target.result);
@@ -341,21 +336,6 @@ export default {
       clearInterval(this.timerId);
       this.timerId = null;
     },
-    // //获取聊天记录
-    // getFriendChatMsg() {
-    //   let params = {
-    //     frinedId: this.frinedInfo.id,
-    //   };
-    //   getChatMsg(params).then((res) => {
-    //     this.chatList = res;
-    //     this.chatList.forEach((item) => {
-    //       if (item.chatType == 2 && item.extend.imgType == 2) {
-    //         this.srcImgList.push(item.msg);
-    //       }
-    //     });
-    //     this.scrollBottom();
-    //   });
-    // },
     //发送信息
     sendMsg(msgList) {
       this.chatList.push(msgList);
@@ -368,10 +348,6 @@ export default {
         scrollDom.scrollTop = scrollDom.scrollHeight;
         // animation(scrollDom, scrollDom.scrollHeight - scrollDom.offsetHeight);
       });
-    },
-    //关闭标签框
-    clickEmoji() {
-      this.showEmoji = !this.showEmoji;
     },
     // 获取当前的时间
     getNowTime() {
@@ -397,6 +373,7 @@ export default {
         this.sendMsg(chatMsg);
         this.$emit('personCardSort', this.frinedInfo.id)
         this.inputMsg = "";
+        this.askQuestion()
       } else {
         this.$message({
           message: "消息不能为空哦~",
@@ -522,6 +499,21 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.centered-text {
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  width: 80%;
+  height: 60px;
+  background-color: rgb(36, 116, 212); /* 为了更好的展示效果，假设背景色为蓝色 */
+}
+
+.text {
+  color: white;
+}
+
 .chat-window {
   width: 100%;
   height: 100%;

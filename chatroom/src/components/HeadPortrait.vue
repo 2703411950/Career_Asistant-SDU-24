@@ -27,7 +27,6 @@ export default {
         z-index: 1;
         display: block;
         border-radius: 50%;
-        background-color: rgb(144,225,80);
         position: absolute;
         right: 0;
     }

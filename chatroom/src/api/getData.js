@@ -25,7 +25,7 @@ export const getExperienceWithOfset = params => {
   // console.log(params)
   return axios({
     method: 'post',
-    baseURL: `${baseUrl}/experience`,
+    baseURL: `${baseUrl}/api/getExperienceWithOfset`,
     data: params
   }).then(res => res.data)
 }
